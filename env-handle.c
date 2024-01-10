@@ -1,31 +1,58 @@
 #include "main.h"
 
 /**
- * @brief Prints the environment variables.
+ * @brief Gets the value of an environment variable.
  *
- * This function initializes and prints the environment variables.
+ * This function searches for the specified environment variable and returns
+ * its value.
  *
- * @return Always returns 0 on success. -1 is returned on error.
+ * @param name Name of the desired variable.
+ * @return If found, returns the environmental variable string; otherwise, returns NULL.
  */
-int print_environment_var(void)
+char *print_environment_var(const char *name)
 {
-    char **env_variable = environ;
+    const char *delimiter = "=";
+    char *env_var;
+    char *token;
+    char *value;
+    int count = 0;
+    int i;
 
-    while (*env_variable)
+    // Count the number of environment variables
+    while (environ[count] != NULL)
     {
-        size_t len = 0;
-
-        // Calculate the length of the environment variable
-        while ((*env_variable)[len])
-            len++;
-
-        // Write the environment variable to the standard output
-        write(STDOUT_FILENO, *env_variable, len);
-        write(STDOUT_FILENO, "\n", 1);
-
-        // Move to the next environment variable
-        env_variable++;
+        count++;
     }
 
-    return 0;
+    // Loop through each environment variable
+    for (i = 0; i < count; i++)
+    {
+        // Duplicate the environment variable to avoid modifying the original
+        env_var = strdup(environ[i]);
+        if (env_var == NULL)
+        {
+            perror("strdup");
+            exit(EXIT_FAILURE);
+        }
+
+        // Tokenize the environment variable using the delimiter
+        token = strtok(env_var, delimiter);
+
+        // Check if the token matches the desired variable name
+        if ((token != NULL) && (strcmp(token, name) == 0))
+        {
+            // Get the value of the environment variable
+            token = strtok(NULL, delimiter);
+            value = strdup(token);
+            free(env_var);
+            return value;
+        }
+
+        // Free the duplicated environment variable
+        free(env_var);
+    }
+
+    // Print an error message if the variable is not found
+    dprintf(STDERR_FILENO, "Variable not found: %s\n", name);
+    return NULL;
 }

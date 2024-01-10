@@ -29,7 +29,7 @@ int _strlen(char *c);
 int _strcmp(char *str1, char *str2);
 char *locate_cmd(char *cmd);
 void execute(char **argv);
-int print_environment_var(void);
+int *print_environment_var(void);
 unsigned int compare_char(char s, const char *str);
 void display_prompt(void);
 
